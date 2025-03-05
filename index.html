@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Musify</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </head>
+    <body>
+        {% block content %}
+        <div class="container">
+            <form id="searchForm">
+                <input type="text" class="inp" name="search" placeholder="Search Musify...">
+                <button type="submit" class="proceed"><i class="fa-solid fa-music"></i></button>
+            </form>
+            <div id="recommendations"></div>
+        </div>
+        {% endblock %}
+        <script>
+            document.getElementById('searchForm').addEventListener('submit', async function(event) {
+                event.preventDefault();
+                let searchQuery = document.getElementsByName('search')[0].value;
+                let response = await fetch('/recommend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'search=' + encodeURIComponent(searchQuery)
+                });
+                let recommendations = await response.json();
+                let recommendationsDiv = document.getElementById('recommendations');
+                recommendationsDiv.innerHTML = recommendations.map(music => `
+                    <div>
+                        <h3>${music.title}</h3>
+                        <p>Artist: ${music.artist}</p>
+                        <p>Genre: ${music.genre}</p>
+                    </div>
+                `).join('');
+            });
+        </script>
+    </body>
+</html>
